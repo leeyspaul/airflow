@@ -69,7 +69,15 @@ Option A – Breeze on Your Laptop
     cd airflow
     uv tool install -e ./dev/breeze
 
-2. Setup your idea workspace to detect project src/ and tests/ folders as source roots.
+2. Optional: set up your IDE workspace helpers.
+
+   This step is not required for development. These scripts only create editor
+   configuration files that make Airflow easier to work with in an IDE.
+
+   * ``setup_idea.py`` prepares IntelliJ IDEA or PyCharm project files so the
+     repo's source and test folders are recognized correctly.
+   * ``setup_vscode.py`` creates ``.vscode/launch.json`` with ready-made VS Code
+     debug configurations for Airflow components running in Breeze.
 
 .. code-block:: bash
 
