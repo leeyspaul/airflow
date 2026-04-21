@@ -67,7 +67,6 @@ from airflow.sdk.execution_time.comms import (
     CreateHITLDetailPayload,
     DagResult,
     DagRunResult,
-    DagRunStateResult,
     DeferTask,
     DeleteVariable,
     DeleteXCom,
@@ -122,6 +121,7 @@ from airflow.sdk.execution_time.request_handlers import (
     handle_delete_variable,
     handle_delete_xcom,
     handle_get_connection,
+    handle_get_dag_run_state,
     handle_get_dr_count,
     handle_get_previous_ti,
     handle_get_task_states,
@@ -1521,9 +1521,6 @@ class ActivitySubprocess(WatchedSubprocess):
         elif isinstance(msg, GetDagRun):
             dr_resp = self.client.dag_runs.get_detail(msg.dag_id, msg.run_id)
             resp = DagRunResult.from_api_response(dr_resp)
-        elif isinstance(msg, GetDagRunState):
-            dr_resp = self.client.dag_runs.get_state(msg.dag_id, msg.run_id)
-            resp = DagRunStateResult.from_api_response(dr_resp)
         elif isinstance(msg, GetTaskRescheduleStartDate):
             resp = self.client.task_instances.get_reschedule_start_date(msg.ti_id, msg.try_number)
         elif isinstance(msg, GetTICount):
@@ -1535,6 +1532,8 @@ class ActivitySubprocess(WatchedSubprocess):
             resp = TaskBreadcrumbsResult.from_api_response(api_resp)
         elif isinstance(msg, GetDRCount):
             resp, dump_opts = handle_get_dr_count(self.client, msg)
+        elif isinstance(msg, GetDagRunState):
+            resp, dump_opts = handle_get_dag_run_state(self.client, msg)
         elif isinstance(msg, GetPreviousDagRun):
             resp = self.client.dag_runs.get_previous(
                 dag_id=msg.dag_id,
