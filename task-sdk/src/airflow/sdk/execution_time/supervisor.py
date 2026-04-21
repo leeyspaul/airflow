@@ -115,7 +115,6 @@ from airflow.sdk.execution_time.comms import (
     ToSupervisor,
     TriggerDagRun,
     ValidateInletsAndOutlets,
-    XComResult,
     XComSequenceIndexResult,
     XComSequenceSliceResult,
     _RequestFrame,
@@ -124,6 +123,7 @@ from airflow.sdk.execution_time.comms import (
 from airflow.sdk.execution_time.request_handlers import (
     handle_get_connection,
     handle_get_variable,
+    handle_get_xcom,
     handle_mask_secret,
 )
 
@@ -1422,11 +1422,7 @@ class ActivitySubprocess(WatchedSubprocess):
         elif isinstance(msg, GetVariable):
             resp, dump_opts = handle_get_variable(self.client, msg)
         elif isinstance(msg, GetXCom):
-            xcom = self.client.xcoms.get(
-                msg.dag_id, msg.run_id, msg.task_id, msg.key, msg.map_index, msg.include_prior_dates
-            )
-            xcom_result = XComResult.from_xcom_response(xcom)
-            resp = xcom_result
+            resp, dump_opts = handle_get_xcom(self.client, msg)
         elif isinstance(msg, GetXComCount):
             resp = self.client.xcoms.head(msg.dag_id, msg.run_id, msg.task_id, msg.key)
         elif isinstance(msg, GetXComSequenceItem):
