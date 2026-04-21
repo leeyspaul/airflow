@@ -50,6 +50,7 @@ from airflow.sdk.execution_time.comms import (
     GetTICount,
     GetVariable,
     GetXCom,
+    GetXComCount,
     MaskSecret,
     PrevSuccessfulDagRunResult,
     PutVariable,
@@ -203,6 +204,12 @@ def handle_get_prev_successful_dag_run(
     dagrun_resp = client.task_instances.get_previous_successful_dagrun(subprocess_id)
     dagrun_result = PrevSuccessfulDagRunResult.from_dagrun_response(dagrun_resp)
     return dagrun_result, {"exclude_unset": True}
+
+
+def handle_get_xcom_count(client: Client, msg: GetXComCount) -> tuple[BaseModel | None, dict[str, bool]]:
+    """Fetch XCom count metadata."""
+    resp = client.xcoms.head(msg.dag_id, msg.run_id, msg.task_id, msg.key)
+    return resp, {}
 
 
 def handle_get_xcom(client: Client, msg: GetXCom) -> tuple[BaseModel | None, dict[str, bool]]:
