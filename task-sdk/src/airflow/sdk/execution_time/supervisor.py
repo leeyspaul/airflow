@@ -121,6 +121,7 @@ from airflow.sdk.execution_time.comms import (
     _ResponseFrame,
 )
 from airflow.sdk.execution_time.request_handlers import (
+    handle_delete_variable,
     handle_get_connection,
     handle_get_variable,
     handle_get_xcom,
@@ -1578,7 +1579,7 @@ class ActivitySubprocess(WatchedSubprocess):
                 state=msg.state,
             )
         elif isinstance(msg, DeleteVariable):
-            resp = self.client.variables.delete(msg.key)
+            resp, dump_opts = handle_delete_variable(self.client, msg)
         elif isinstance(msg, ValidateInletsAndOutlets):
             inactive_assets_resp = self.client.task_instances.validate_inlets_and_outlets(msg.ti_id)
             resp = InactiveAssetsResult.from_inactive_assets_response(inactive_assets_resp)
