@@ -69,6 +69,7 @@ from airflow.sdk.execution_time.comms import (
 )
 from airflow.sdk.execution_time.request_handlers import (
     handle_get_xcom,
+    handle_put_variable,
 )
 from airflow.sdk.execution_time.supervisor import WatchedSubprocess
 from airflow.sdk.execution_time.task_runner import RuntimeTaskInstance, _send_error_email_notification
@@ -625,7 +626,7 @@ class DagFileProcessorProcess(WatchedSubprocess):
             else:
                 resp = var
         elif isinstance(msg, PutVariable):
-            self.client.variables.set(msg.key, msg.value, msg.description)
+            resp, dump_opts = handle_put_variable(self.client, msg)
         elif isinstance(msg, DeleteVariable):
             resp = self.client.variables.delete(msg.key)
         elif isinstance(msg, GetPreviousDagRun):
