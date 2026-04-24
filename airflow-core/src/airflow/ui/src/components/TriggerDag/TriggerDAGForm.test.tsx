@@ -39,7 +39,7 @@ const dagParams = vi.hoisted(() => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    "t": (translationKey: string) =>
+    t: (translationKey: string) =>
       ({
         "configForm.advancedOptions": "Advanced Options",
       })[translationKey] ?? translationKey,
@@ -105,13 +105,13 @@ describe("TriggerDAGForm", () => {
       { wrapper: Wrapper },
     );
 
-    await screen.findByText("Message");
-    const messageField = container.querySelector<HTMLTextAreaElement>('textarea[name="element_message"]');
-
-    expect(messageField).toBeInTheDocument();
+    await waitFor(() =>
+      expect(container.querySelector<HTMLInputElement>('input[name="element_message"]')).toBeInTheDocument(),
+    );
+    const messageField = container.querySelector<HTMLInputElement>('input[name="element_message"]');
 
     if (messageField === null) {
-      throw new Error("Expected message textarea to be rendered");
+      throw new Error("Expected message input to be rendered");
     }
 
     fireEvent.change(messageField, { target: { value: "Updated message" } });
