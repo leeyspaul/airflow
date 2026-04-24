@@ -39,6 +39,7 @@ const dagParams = vi.hoisted(() => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
+    // eslint-disable-next-line id-length
     t: (translationKey: string) =>
       ({
         "configForm.advancedOptions": "Advanced Options",
