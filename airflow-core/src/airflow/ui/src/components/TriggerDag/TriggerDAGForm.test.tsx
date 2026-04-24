@@ -26,14 +26,13 @@ import TriggerDAGForm from "./TriggerDAGForm";
 
 const dagParams = vi.hoisted(() => ({
   paramsDict: {
-    names: {
-      description: "Names",
+    message: {
+      description: "Message",
       schema: {
-        items: { type: "string" },
-        title: "Names to greet",
-        type: "array",
+        title: "Message",
+        type: "string",
       },
-      value: ["Linda"],
+      value: "Hello",
     },
   },
 }));
@@ -97,7 +96,7 @@ describe("TriggerDAGForm", () => {
         open
         prefillConfig={{
           conf: {
-            names: ["Paul"],
+            message: "Original message",
           },
           logicalDate: undefined,
           runId: "manual__test",
@@ -106,16 +105,16 @@ describe("TriggerDAGForm", () => {
       { wrapper: Wrapper },
     );
 
-    await screen.findByText("Names to greet");
-    const namesField = container.querySelector<HTMLTextAreaElement>('textarea[name="element_names"]');
+    await screen.findByText("Message");
+    const messageField = container.querySelector<HTMLTextAreaElement>('textarea[name="element_message"]');
 
-    expect(namesField).toBeInTheDocument();
+    expect(messageField).toBeInTheDocument();
 
-    if (namesField === null) {
-      throw new Error("Expected names textarea to be rendered");
+    if (messageField === null) {
+      throw new Error("Expected message textarea to be rendered");
     }
 
-    fireEvent.change(namesField, { target: { value: "P" } });
+    fireEvent.change(messageField, { target: { value: "Updated message" } });
     fireEvent.click(screen.getByText("Advanced Options"));
 
     await waitFor(() => {
@@ -125,7 +124,7 @@ describe("TriggerDAGForm", () => {
         throw new TypeError("Expected Configuration JSON to render as a textarea");
       }
 
-      expect(configJson.value).toContain('"P"');
+      expect(configJson.value).toContain('"Updated message"');
     });
   });
 });
