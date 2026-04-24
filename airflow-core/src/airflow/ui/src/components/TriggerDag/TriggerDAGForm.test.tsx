@@ -40,10 +40,10 @@ const dagParams = vi.hoisted(() => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string) =>
+    "t": (translationKey: string) =>
       ({
         "configForm.advancedOptions": "Advanced Options",
-      })[key] ?? key,
+      })[translationKey] ?? translationKey,
   }),
 }));
 
@@ -58,18 +58,20 @@ vi.mock("src/queries/useTogglePause", () => ({
 }));
 
 vi.mock("../DateTimeInput", () => ({
-  DateTimeInput: ({ value = "" }: { value?: string }) => <input readOnly value={value} />,
+  DateTimeInput: ({ value = "" }: { readonly value?: string }) => (
+    <input aria-label="Logical Date" readOnly value={value} />
+  ),
 }));
 
 vi.mock("../JsonEditor", () => ({
   JsonEditor: ({
-    value = "",
     onBlur,
     onChange,
+    value = "",
   }: {
-    value?: string;
-    onBlur?: () => void;
-    onChange?: (value: string) => void;
+    readonly onBlur?: () => void;
+    readonly onChange?: (value: string) => void;
+    readonly value?: string;
   }) => (
     <textarea
       aria-label="Configuration JSON"
@@ -109,11 +111,19 @@ describe("TriggerDAGForm", () => {
 
     expect(namesField).toBeInTheDocument();
 
-    fireEvent.change(namesField as HTMLTextAreaElement, { target: { value: "P" } });
+    if (namesField === null) {
+      throw new Error("Expected names textarea to be rendered");
+    }
+
+    fireEvent.change(namesField, { target: { value: "P" } });
     fireEvent.click(screen.getByText("Advanced Options"));
 
     await waitFor(() => {
-      const configJson = screen.getByLabelText("Configuration JSON") as HTMLTextAreaElement;
+      const configJson = screen.getByLabelText("Configuration JSON");
+
+      if (!(configJson instanceof HTMLTextAreaElement)) {
+        throw new TypeError("Expected Configuration JSON to render as a textarea");
+      }
 
       expect(configJson.value).toContain('"P"');
     });
