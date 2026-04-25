@@ -16,15 +16,30 @@
 # under the License.
 from __future__ import annotations
 
-from airflow_shared.observability.metrics.metrics_registry import generate_metrics_rst_from_registry
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+from jinja2 import Template
+
+TEMPLATE_PATH = Path(__file__).parents[1] / "src" / "airflow_breeze" / "provider_issue_TEMPLATE.md.jinja2"
 
 
-def generate_metrics(app):
-    generate_metrics_rst_from_registry()
+@pytest.mark.parametrize(("is_new", "has_marker"), [(True, True), (False, False)])
+def test_provider_issue_template_marks_new_provider(is_new: bool, has_marker: bool):
+    provider_info = SimpleNamespace(
+        version="0.1.0",
+        suffix="",
+        pypi_package_name="apache-airflow-providers-vespa",
+        pr_list=[],
+        is_new=is_new,
+    )
+    template = Template(TEMPLATE_PATH.read_text())
 
+    rendered = template.render(
+        providers={"vespa": provider_info},
+        linked_issues={},
+        date="2026-04-24",
+    )
 
-def setup(app):
-    """Set up the extension."""
-    app.connect("builder-inited", generate_metrics)
-
-    return {"version": "builtin", "parallel_read_safe": True, "parallel_write_safe": True}
+    assert (":tada: New provider" in rendered) is has_marker
