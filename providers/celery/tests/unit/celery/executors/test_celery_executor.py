@@ -988,8 +988,8 @@ def test_execute_workload_ignores_already_running_task():
             "bundle_info": {"name": "test-bundle", "version": null},
             "log_path": "test.log",
             "ti": {
-                "id": "00000000-0000-0000-0000-000000000001",
-                "dag_version_id": "00000000-0000-0000-0000-000000000002",
+                "id": "019bdec0-d353-7b68-abe0-5ac20fa75ad0,
+                "dag_version_id": "019bdead-fdcd-78ab-a9f2-aba3b80fded2",
                 "task_id": "test_task",
                 "dag_id": "test_dag",
                 "run_id": "test_run",
