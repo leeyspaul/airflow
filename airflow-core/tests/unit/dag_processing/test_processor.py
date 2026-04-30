@@ -662,7 +662,6 @@ def test_callback_processing_does_not_update_timestamps():
         finish_time=timezone.utcnow(),
         run_count=5,
         bundle_name="test",
-        bundle_version=None,
         parsing_result=None,
         is_callback_only=True,
     )
@@ -680,7 +679,6 @@ def test_normal_parsing_updates_timestamps():
         finish_time=finish_time,
         run_count=3,
         bundle_name="test-bundle",
-        bundle_version="v1",
         parsing_result=DagFileParsingResult(fileloc="test.py", serialized_dags=[]),
         is_callback_only=False,
     )
@@ -699,7 +697,6 @@ def test_import_error_updates_timestamps():
         finish_time=finish_time,
         run_count=2,
         bundle_name="test-bundle",
-        bundle_version="v1",
         parsing_result=None,
         is_callback_only=False,
     )
