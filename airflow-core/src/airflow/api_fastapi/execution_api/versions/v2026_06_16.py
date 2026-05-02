@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
 # distributed with this work for additional information
@@ -15,27 +14,20 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-# /// script
-# requires-python = ">=3.10,<3.11"
-# dependencies = [
-#   "rich>=13.6.0",
-#   "ruff==0.15.11",
-# ]
-# ///
+
 from __future__ import annotations
 
-from common_prek_utils import (
-    initialize_breeze_prek,
-    run_command_via_breeze_shell,
-    validate_cmd_result,
-)
+from cadwyn import VersionChange, schema
 
-initialize_breeze_prek(__name__, __file__)
+from airflow.api_fastapi.execution_api.datamodels.taskinstance import TIRetryStatePayload
 
-cmd_result = run_command_via_breeze_shell(
-    ["python3", "/opt/airflow/scripts/in_container/run_check_imports_in_providers.py"],
-    backend="sqlite",
-    skip_environment_initialization=False,
-)
 
-validate_cmd_result(cmd_result)
+class AddRetryPolicyFields(VersionChange):
+    """Add retry_delay_seconds and retry_reason fields to TIRetryStatePayload for pluggable retry policies."""
+
+    description = __doc__
+
+    instructions_to_migrate_to_previous_version = (
+        schema(TIRetryStatePayload).field("retry_delay_seconds").didnt_exist,
+        schema(TIRetryStatePayload).field("retry_reason").didnt_exist,
+    )
