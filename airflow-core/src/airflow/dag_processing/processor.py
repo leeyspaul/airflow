@@ -673,8 +673,6 @@ class DagFileProcessorProcess(WatchedSubprocess):
             resp = XComSequenceSliceResult.from_response(xcoms)
         elif isinstance(msg, MaskSecret):
             # Use sdk masker in dag processor and triggerer because those use the task sdk machinery
-            from airflow.sdk.log import mask_secret
-
             mask_secret(msg.value, msg.name)
         elif isinstance(msg, GetTICount):
             resp = self.client.task_instances.get_count(
