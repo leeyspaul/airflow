@@ -89,8 +89,10 @@ def retrieve_github_token(token: str | None = None, *, env: Mapping[str, str] | 
     """
     Resolve a GitHub token for local Breeze commands.
 
-    Explicit ``--github-token`` values are preserved. Ambient ``GH_TOKEN``/``GITHUB_TOKEN`` values are
-    used only after trying the user's stored ``gh auth login`` credential.
+    Non-empty token arguments are preserved when they do not match ``GH_TOKEN`` or
+    ``GITHUB_TOKEN`` from the environment. Matching values are treated as ambient env input because
+    Click can populate ``--github-token`` from ``envvar="GITHUB_TOKEN"``. Ambient env tokens are used
+    only after trying the user's stored ``gh auth login`` credential.
     """
     env_token = get_github_token_from_env(env)
     source_env = os.environ if env is None else env
