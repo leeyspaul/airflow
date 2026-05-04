@@ -127,10 +127,9 @@ def workflow_run_publish(
         )
         sys.exit(1)
     if os.environ.get("GITHUB_TOKEN", ""):
-        console_print("\n[warning]GITHUB_TOKEN environment variable is set.")
         console_print(
-            "\nBreeze will first try your `gh auth login` credentials and use GITHUB_TOKEN only as "
-            "a fallback. The fallback token needs sufficient permissions to trigger workflows."
+            "\n[warning]GITHUB_TOKEN is set; Breeze will try your `gh auth login` first and only "
+            "use this token as a fallback. The fallback token must have workflow-trigger scope."
         )
     console_print(
         f"[blue]Validating ref: {ref}[/blue]",
