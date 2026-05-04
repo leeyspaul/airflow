@@ -3052,11 +3052,6 @@ def generate_issue_content_core(
     )
 
 
-def _get_github_token(github_token: str) -> str:
-    """Return github_token as-is, or fall back to ``gh auth token``."""
-    return retrieve_github_token(github_token) or github_token
-
-
 def _get_airflowctl_prs(
     verbose: bool,
     previous_release: str,
@@ -3267,7 +3262,7 @@ def generate_airflowctl_changelog(
     verbose = get_verbose()
 
     prs = _get_airflowctl_prs(verbose, previous_release, current_release, excluded_pr_list)
-    github_token = _get_github_token(github_token)
+    github_token = retrieve_github_token(github_token) or ""
 
     g = Github(github_token)
     repo = g.get_repo("apache/airflow")
@@ -4431,7 +4426,7 @@ def generate_issue_content(
         excluded_prs = []
     prs = [pr for pr in change_prs if pr is not None and pr not in excluded_prs]
 
-    github_token = _get_github_token(github_token)
+    github_token = retrieve_github_token(github_token) or ""
     g = Github(github_token)
     repo = g.get_repo("apache/airflow")
     pull_requests: dict[int, PullRequestOrIssue] = {}
