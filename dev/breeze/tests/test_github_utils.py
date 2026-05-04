@@ -24,6 +24,7 @@ from airflow_breeze.utils.github import (
     retrieve_github_token,
     run_gh_command,
 )
+from airflow_breeze.utils.shared_options import set_dry_run
 
 
 def _completed_process(returncode: int, stdout: str = "") -> subprocess.CompletedProcess[str]:
@@ -120,3 +121,15 @@ def test_run_gh_command_does_not_retry_after_clean_env_success(mock_run, monkeyp
 
     assert result.returncode == 0
     mock_run.assert_called_once()
+
+
+@mock.patch("airflow_breeze.utils.github.subprocess.run")
+def test_run_gh_command_skips_subprocess_in_dry_run(mock_run):
+    set_dry_run(True)
+    try:
+        result = run_gh_command(["gh", "workflow", "run", "docs.yml"], capture_output=True)
+    finally:
+        set_dry_run(False)
+
+    assert result.returncode == 0
+    mock_run.assert_not_called()

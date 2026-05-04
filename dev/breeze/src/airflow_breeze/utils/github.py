@@ -73,6 +73,8 @@ def run_gh_command(
     """
     command_env = os.environ.copy() if env is None else dict(env)
     check = kwargs.pop("check", False)
+    if get_dry_run():
+        return subprocess.CompletedProcess(command, returncode=0, stdout="", stderr="")
     result = subprocess.run(command, env=env_without_github_tokens(command_env), check=False, **kwargs)
     if result.returncode == 0:
         return result
