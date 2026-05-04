@@ -19,6 +19,8 @@ from __future__ import annotations
 import subprocess
 from unittest import mock
 
+import pytest
+
 from airflow_breeze.utils.github import (
     env_without_github_tokens,
     retrieve_github_token,
@@ -75,6 +77,14 @@ def test_retrieve_github_token_falls_back_to_env_token_when_gh_is_missing(mock_r
 
 
 @mock.patch("airflow_breeze.utils.github.subprocess.run")
+def test_retrieve_github_token_falls_back_to_env_token_when_gh_returns_whitespace(mock_run, monkeypatch):
+    monkeypatch.setenv("GITHUB_TOKEN", "env-github-token")
+    mock_run.return_value = _completed_process(returncode=0, stdout="  \n")
+
+    assert retrieve_github_token() == "env-github-token"
+
+
+@mock.patch("airflow_breeze.utils.github.subprocess.run")
 def test_retrieve_github_token_keeps_explicit_token(mock_run, monkeypatch):
     monkeypatch.setenv("GITHUB_TOKEN", "env-token")
 
@@ -121,6 +131,26 @@ def test_run_gh_command_does_not_retry_after_clean_env_success(mock_run, monkeyp
 
     assert result.returncode == 0
     mock_run.assert_called_once()
+
+
+@mock.patch("airflow_breeze.utils.github.subprocess.run")
+def test_run_gh_command_raises_when_check_true_and_no_env_token_to_retry(mock_run, monkeypatch):
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    mock_run.return_value = _completed_process(returncode=1)
+
+    with pytest.raises(subprocess.CalledProcessError) as ctx:
+        run_gh_command(["gh", "api", "repos/apache/airflow"], capture_output=True, check=True)
+
+    assert ctx.value.returncode == 1
+
+
+@mock.patch("airflow_breeze.utils.github.subprocess.run")
+def test_run_gh_command_raises_when_gh_is_missing(mock_run):
+    mock_run.side_effect = FileNotFoundError
+
+    with pytest.raises(FileNotFoundError):
+        run_gh_command(["gh", "api", "repos/apache/airflow"], capture_output=True)
 
 
 @mock.patch("airflow_breeze.utils.github.subprocess.run")
