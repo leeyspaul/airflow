@@ -69,11 +69,13 @@ from airflow.sdk.execution_time.comms import (
 )
 from airflow.sdk.execution_time.request_handlers import (
     handle_delete_variable,
+    handle_get_connection,
     handle_get_prev_successful_dag_run,
     handle_get_previous_dag_run,
     handle_get_previous_ti,
     handle_get_task_states,
     handle_get_ti_count,
+    handle_get_variable,
     handle_get_xcom,
     handle_get_xcom_count,
     handle_get_xcom_sequence_item,
@@ -608,31 +610,14 @@ class DagFileProcessorProcess(WatchedSubprocess):
         return super()._create_log_forwarder(loggers, name.replace("task.", "dag_processor.", 1), log_level)
 
     def _handle_request(self, msg: ToManager, log: FilteringBoundLogger, req_id: int) -> None:
-        from airflow.sdk.api.datamodels._generated import (
-            ConnectionResponse,
-            VariableResponse,
-        )
-
         resp: BaseModel | None = None
         dump_opts = {}
         if isinstance(msg, DagFileParsingResult):
             self.parsing_result = msg
         elif isinstance(msg, GetConnection):
-            conn = self.client.connections.get(msg.conn_id)
-            if isinstance(conn, ConnectionResponse):
-                conn_result = ConnectionResult.from_conn_response(conn)
-                resp = conn_result
-                dump_opts = {"exclude_unset": True, "by_alias": True}
-            else:
-                resp = conn
+            resp, dump_opts = handle_get_connection(self.client, msg)
         elif isinstance(msg, GetVariable):
-            var = self.client.variables.get(msg.key)
-            if isinstance(var, VariableResponse):
-                var_result = VariableResult.from_variable_response(var)
-                resp = var_result
-                dump_opts = {"exclude_unset": True}
-            else:
-                resp = var
+            resp, dump_opts = handle_get_variable(self.client, msg)
         elif isinstance(msg, PutVariable):
             resp, dump_opts = handle_put_variable(self.client, msg)
         elif isinstance(msg, DeleteVariable):
